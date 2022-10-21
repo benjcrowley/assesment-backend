@@ -1,4 +1,7 @@
+const airBnbs = require('./db.json')
+
 module.exports = {
+    getAllAirBnbs: (req, res) => res.status(200).send(airBnbs),
 
     getCompliment: (req, res) => {
         const compliments = ["Gee, you're a smart cookie!", "Cool shirt!", "Your Javascript skills are stellar."];
@@ -18,6 +21,58 @@ module.exports = {
         let randomFortune = fortunes[randomIndex]
 
         res.status(200).send(randomFortune)
+    },
+    createNewFortune: (req, res) => {
+
+    },
+    deleteAirBnb: (req, res) => {
+        const deleteId = req.params.id
+        let index = airBnbs.findIndex(element => element.id === +deleteId)
+        airBnbs.splice(index, 1)
+        res.status(200).send(airBnbs)
+    },
+
+    changeAirBnbGuests: (req, res) => {
+        let { id } = req.params
+        let { type } = req.body
+        let index = airBnbs.findIndex(elem => +elem.id === +id)
+
+        if (airBnbs[index].guests === 5 && type === 'plus') {
+            res.status(400).send('cannot go above 5')
+        } else if (airBnbs[index].guests === 0 && type === 'minus') {
+            res.status(400).send('cannot go below 0')
+        } else if (type === 'plus') {
+            airBnbs[index].guests++
+            res.status(200).send(airBnbs)
+        } else if (type === 'minus') {
+            airBnbs[index].guests--
+            res.status(200).send(airBnbs)
+        } else {
+            res.sendStatus(400)
+        }
+    },
+
+    createAirBnb: (req, res) => {
+        console.log('working on it')
+        const {location, imageURL, guests} = req.body
+        console.log(req.body)
+        //find the next id
+        let greatestId = -1
+        for (let i = 0; i < airBnbs.length; i++) {
+            if (airBnbs[i].id > greatestId) {
+                greatestId = airBnbs[i].id
+            }
+        }
+        let nextId = greatestId + 1
+        let newAirBnb = {
+            id: nextId,
+            location: "location: " + location,
+            guests,
+            imageURL
+        }
+        airBnbs.push(newAirBnb)
+        res.status(200).send(airBnbs)
+        console.log(airBnbs)
     }
 
 }
